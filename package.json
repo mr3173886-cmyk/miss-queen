@@ -1,0 +1,13 @@
+{
+  "name": "miss-queen",
+  "version": "1.0.0",
+  "description": "Miss Queen Bot Manager",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^8.2.0",
+    "express-session": "^1.18.0",
+    "ejs": "^3.1.9"
+  }
+}
+
