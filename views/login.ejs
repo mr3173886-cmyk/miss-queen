@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Miss Queen 💟 - Login</title>
+  <style>
+    body, html, h2, form, input, button, div, p {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: #0f0f1a;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+    .snow-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .snowflake {
+      position: absolute;
+      top: -10px;
+      color: #fff;
+      font-size: 1.2em;
+      user-select: none;
+      animation: fall linear infinite;
+    }
+    @keyframes fall {
+      0% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(105vh);
+        opacity: 0.3;
+      }
+    }
+    .login-box {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      width: 350px;
+      z-index: 10;
+      text-align: center;
+    }
+    .login-box h2 {
+      margin-bottom: 10px;
+      color: #ff69b4;
+    }
+    .login-box p.credits {
+      font-size: 0.8em;
+      margin-bottom: 30px;
+      color: #ccc;
+    }
+    .input-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: #fff;
+      outline: none;
+    }
+    .input-group input:focus {
+      border-color: #ff69b4;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: #ff69b4;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1em;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    .login-btn:hover {
+      background: #ff1493;
+    }
+    .error-msg {
+      color: #ff4d4d;
+      margin-bottom: 15px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <div class="snow-container" id="snow"></div>
+  <div class="login-box">
+    <h2>Miss Queen 💟</h2>
+    <p class="credits">Made by 💖 𝔐𝔯.𝔎𝔦𝔫𝔤</p>
+    <% if (error) { %>
+      <div class="error-msg"><%= error %></div>
+    <% } %>
+    <form action="/login" method="POST">
+      <div class="input-group">
+        <input type="text" name="username" placeholder="Username" required autocomplete="off">
+      </div>
+      <div class="input-group">
+        <input type="password" name="password" placeholder="Password" required>
+      </div>
+      <button type="submit" class="login-btn">Login</button>
+    </form>
+  </div>
+
+  <script>
+    const snowContainer = document.getElementById('snow');
+    const snowflakeChars = ['❄', '❅', '❆'];
+    
+    // safe division multiplication helper (no asterisks)
+    const mul = (num, multiplier) => num / (1 / multiplier);
+    
+    function createSnowflake() {
+      const flake = document.createElement('div');
+      flake.classList.add('snowflake');
+      const randomCharIndex = Math.floor(mul(Math.random(), 3));
+      flake.innerText = snowflakeChars[randomCharIndex];
+      
+      const randomLeft = Math.floor(mul(Math.random(), 100));
+      flake.style.left = randomLeft + '%';
+      
+      const randomDuration = Math.floor(mul(Math.random(), 5)) + 5;
+      flake.style.animationDuration = randomDuration + 's';
+      
+      const randomSize = Math.floor(mul(Math.random(), 15)) + 10;
+      flake.style.fontSize = randomSize + 'px';
+      
+      snowContainer.appendChild(flake);
+      
+      setTimeout(() => {
+        flake.remove();
+      }, mul(randomDuration, 1000));
+    }
+    
+    setInterval(createSnowflake, 200);
+  </script>
+</body>
+</html>
+

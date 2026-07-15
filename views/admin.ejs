@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Miss Queen 💟 - Admin Panel</title>
+  <style>
+    body, html, div, h2, h3, p, form, input, textarea, button, table, th, td, a {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: #0f0f1a;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 40px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 20px;
+    }
+    .header h2 {
+      color: #ff69b4;
+    }
+    .back-btn {
+      padding: 10px 20px;
+      background: #151528;
+      border: 1px solid #ff69b4;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+    .card {
+      background: #151528;
+      border-radius: 12px;
+      padding: 25px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .card h3 {
+      color: #ff69b4;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 10px;
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    .input-group input, .input-group textarea {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #fff;
+      outline: none;
+    }
+    .input-group textarea {
+      height: 150px;
+      resize: vertical;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    .btn {
+      padding: 12px 20px;
+      background: #ff69b4;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+    }
+    .btn:hover {
+      background: #ff1493;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    th {
+      color: #ff69b4;
+    }
+    .action-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85em;
+      color: #fff;
+      text-decoration: none;
+    }
+    .btn-toggle {
+      background: #ffa500;
+    }
+    .btn-delete {
+      background: #ff4d4d;
+      margin-left: 5px;
+    }
+    .status-active {
+      color: #00ffcc;
+      font-weight: bold;
+    }
+    .status-inactive {
+      color: #ff4d4d;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>Miss Queen 💟 - Control Panel</h2>
+    <a href="/dashboard" class="back-btn">Go to Dashboard</a>
+  </div>
+
+  <div class="admin-grid">
+    <div class="card">
+      <h3>Manage Users</h3>
+      <form action="/admin/user/add" method="POST" style="margin-bottom: 25px;">
+        <div class="input-group">
+          <input type="text" name="username" placeholder="New Username" required autocomplete="off">
+        </div>
+        <div class="input-group">
+          <input type="password" name="password" placeholder="New Password" required>
+        </div>
+        <button type="submit" class="btn">Create User</button>
+      </form>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach(u => { %>
+            <tr>
+              <td><%= u.username %></td>
+              <td>
+                <span class="<%= u.active ? 'status-active' : 'status-inactive' %>">
+                  <%= u.active ? 'Active' : 'Banned' %>
+                </span>
+              </td>
+              <td style="display: flex;">
+                <form action="/admin/user/toggle/<%= u._id %>" method="POST">
+                  <button type="submit" class="action-btn btn-toggle">
+                    <%= u.active ? 'Deactivate' : 'Activate' %>
+                  </button>
+                </form>
+                <form action="/admin/user/delete/<%= u._id %>" method="POST">
+                  <button type="submit" class="action-btn btn-delete">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Upload Custom Scripts</h3>
+      <form action="/admin/script/add" method="POST" style="margin-bottom: 25px;">
+        <div class="input-group">
+          <input type="text" name="name" placeholder="Script Name (e.g., Bot Script)" required autocomplete="off">
+        </div>
+        <div class="input-group">
+          <textarea name="code" placeholder="Paste your JavaScript code here..." required></textarea>
+        </div>
+        <button type="submit" class="btn">Upload Script</button>
+      </form>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Script Name</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% scripts.forEach(s => { %>
+            <tr>
+              <td><%= s.name %></td>
+              <td>
+                <form action="/admin/script/delete/<%= s._id %>" method="POST">
+                  <button type="submit" class="action-btn btn-delete">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
+
