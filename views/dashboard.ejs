@@ -220,7 +220,6 @@
         `;
         loadNextAnime();
       } else if (isShayari) {
-        // Dynamic Shayari Player
         codeArea.innerHTML = `
           <div style="text-align: center; padding: 10px;">
             <p id="shayari-status" style="color: #ff69b4; margin-bottom: 10px; font-weight: bold;">🎬 একটু অপেক্ষা করো বেবি😜...</p>
@@ -255,7 +254,6 @@
       }
     }
 
-    // Shayari Fetcher Logic
     async function loadNextShayari() {
       const statusText = document.getElementById('shayari-status');
       const wrapper = document.getElementById('shayari-wrapper');
@@ -268,14 +266,15 @@
       if (wrapper) wrapper.style.display = 'none';
 
       try {
-        // Fetch Base API URL from your custom script source
         const baseRes = await fetch('https://raw.githubusercontent.com/Sh4nDev/ShAn.s-Api/refs/heads/main/Api.json');
         const baseData = await baseRes.json();
         const shanBase = baseData.shan;
 
-        // Fetch Shayari Video
-        const response = await fetch(`${shanBase}/ShAn-album-videos?category=shayari&senderID=10001&author=ShAn`);
-        const data = await response.json();
+        const targetUrl = `${shanBase}/ShAn-album-videos?category=shayari&senderID=10001&author=ShAn`;
+
+        const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
+        const proxyData = await response.json();
+        const data = JSON.parse(proxyData.contents);
 
         if (data && data.ShAn) {
           player.src = data.ShAn;
@@ -285,7 +284,8 @@
           if (statusText) statusText.innerText = "❌ ভুল এপিআই রেস্পন্স..";
         }
       } catch (err) {
-        if (statusText) statusText.innerText = "⚠ Sorry, the video couldn't be loaded right now.";
+        console.error(err);
+        if (statusText) statusText.innerText = "⚠ ভিডিও লোড করা যায়নি। আবার চেষ্টা করুন!";
       }
     }
 
@@ -349,7 +349,7 @@
 
       const randomMessages = [
         "babu khuda lagse🥺", "Hop beda😾,Boss বল boss😼", "আমাকে ডাকলে ,আমি কিন্তূ কিস করে দেবো😘 ",
-        "𝗜 𝗹𝗼𝐯𝗲 𝘆𝗼𝘂__😘😘", "𝗜 𝗵𝗮𝘁𝗲 𝘆𝗼𝐮__😏😏", "গোসল করে আসো যাও😑😩", "কেমন আছো_🥹",
+        "𝗜 𝗹𝗼𝐯𝗲 𝘆𝗼𝐮__😘😘", "𝗜 𝗵𝗮𝘁𝗲 𝘆𝗼𝐮__😏😏", "গোসল করে আসো যাও😑😩", "কেমন আছো_🥹",
         "বলেন sir__😌", "বলেন ম্যাডাম__😌", "𝗕𝗲𝘀𝗵𝗶 𝗱𝗮𝗸𝗹𝗲 𝗮𝗺ｍｕ 𝗯𝗼𝗸𝗮 𝗱ｉ𝐛𝗲 𝘁𝗼__🥺",
         "তোর কথা তোর বাড়ি কেউ শুনে না ,তো আমি কোনো শুনবো ?🤔😂", "আমি তো অন্ধ কিছু দেখি না🐸 😎",
         "আজব তো__😒", "আমাকে না ডেকে একটু পড়তেও বসতে তো পারো 😒😒", "তোর বিয়ে হয় নি 𝗕𝗯𝘆 হইলো কিভাবে,,🙄",
