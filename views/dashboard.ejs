@@ -204,10 +204,8 @@
       title.innerText = name;
 
       const lowerName = name.toLowerCase();
-      const isAnime = lowerName.includes('anime');
+      const isAnime = lowerName.includes('anime') || lowerName.includes('vid');
       const isBaby = lowerName.includes('baby') || lowerName.includes('bby') || lowerName.includes('chat');
-      const isShayari = lowerName.includes('shayari');
-      const isProfile = lowerName.includes('profile') || lowerName.includes('pfp') || lowerName.includes('pp');
 
       if (isAnime) {
         codeArea.innerHTML = `
@@ -220,43 +218,8 @@
           </div>
         `;
         loadNextAnime();
-      } else if (isShayari) {
-        codeArea.innerHTML = `
-          <div style="text-align: center; padding: 10px;">
-            <p id="shayari-status" style="color: #ff69b4; margin-bottom: 10px; font-weight: bold;">🎬 একটু অপেক্ষা করো বেবি😜...</p>
-            <div id="shayari-wrapper" style="display: none; max-width: 350px; margin: 0 auto; border-radius: 10px; overflow: hidden; box-shadow: 0 0 15px rgba(255, 105, 180, 0.5);">
-              <video id="shayari-player" controls autoplay style="width: 100%; display: block;"></video>
-            </div>
-            <button onclick="loadNextShayari()" style="margin-top: 15px; padding: 10px 20px; background: #ff1493; border: none; border-radius: 8px; color: #fff; cursor: pointer; font-weight: bold;">Next Shayari ⏭️</button>
-          </div>
-        `;
-        loadNextShayari();
-      } else if (isProfile) {
-        // Facebook Profile Picture Downloader Box
-        codeArea.innerHTML = `
-          <div style="background: #0f0f26; border: 1px solid #ff69b4; border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
-            <div style="background: linear-gradient(135deg, #ff1493, #ff69b4); padding: 10px; border-radius: 8px; text-align: center;">
-              <span style="font-weight: bold; color: white;">FB Profile Picture Downloader 🖼️</span>
-            </div>
-            
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <label style="font-size: 0.85rem; color: #ff69b4; font-weight: bold;">Enter FB UID or Profile URL:</label>
-              <input id="fb-input" type="text" placeholder="e.g. 10001000000000 or facebook link" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #151528; color: white; outline: none; font-size: 0.9rem;" />
-            </div>
-
-            <button onclick="fetchFbProfile()" style="width: 100%; padding: 12px; background: #ff1493; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; transition: 0.3s;">Get Profile Picture 🔍</button>
-            
-            <div id="pfp-result" style="display: none; text-align: center; margin-top: 10px; flex-direction: column; align-items: center; gap: 12px;">
-              <p style="color: #00ffcc; font-size: 0.9rem; font-weight: bold;">✨ Profile Picture Found!</p>
-              <div style="width: 200px; height: 200px; border-radius: 50%; overflow: hidden; border: 4px solid #ff69b4; box-shadow: 0 0 15px rgba(255, 105, 180, 0.5);">
-                <img id="pfp-image" src="" alt="FB PFP" style="width: 100%; height: 100%; object-fit: cover;" />
-              </div>
-              <a id="pfp-download-btn" href="" download="fb_profile.jpg" target="_blank" style="padding: 10px 20px; background: #25d366; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Download Profile 📥</a>
-            </div>
-            <p id="pfp-error" style="display: none; color: #ff4d4d; text-align: center; font-size: 0.85rem; font-weight: bold;"></p>
-          </div>
-        `;
       } else if (isBaby) {
+        // Direct Interactive Chatting Box inside the dashboard container
         codeArea.innerHTML = `
           <div style="display: flex; flex-direction: column; height: 380px; background: #0f0f26; border-radius: 10px; border: 1px solid #ff69b4; overflow: hidden;">
             <div style="background: linear-gradient(135deg, #ff1493, #ff69b4); padding: 10px; display: flex; align-items: center; gap: 8px;">
@@ -277,93 +240,6 @@
         setupChatBox();
       } else {
         codeArea.innerHTML = `<pre><code>${escapeHtml(script.code)}</code></pre>`;
-      }
-    }
-
-    // FB Profile Downloader Logic
-    async function fetchFbProfile() {
-      const inputVal = document.getElementById('fb-input').value.trim();
-      const resultDiv = document.getElementById('pfp-result');
-      const errorText = document.getElementById('pfp-error');
-      const pfpImg = document.getElementById('pfp-image');
-      const downloadBtn = document.getElementById('pfp-download-btn');
-
-      resultDiv.style.display = 'none';
-      errorText.style.display = 'none';
-
-      if (!inputVal) {
-        errorText.innerText = "⚠️ Please enter a valid UID or Profile Link!";
-        errorText.style.display = 'block';
-        return;
-      }
-
-      let uid = inputVal;
-
-      // Check if user pasted a link instead of raw UID
-      if (inputVal.includes("facebook.com")) {
-        const match = inputVal.match(/(\d+)/);
-        if (match && match[0]) {
-          uid = match[0];
-        } else {
-          // If profile link doesn't contain simple numbers, use look up
-          errorText.innerText = "⚠️ Please provide numeric UID directly (e.g. 10001000000000)";
-          errorText.style.display = 'block';
-          return;
-        }
-      }
-
-      // Check if UID is numeric
-      if (!/^\d+$/.test(uid)) {
-        errorText.innerText = "⚠️ Invalid Facebook UID format. Numeric characters only!";
-        errorText.style.display = 'block';
-        return;
-      }
-
-      // Generate Facebook Graph URL for high resolution profile picture
-      const avatarUrl = `https://graph.facebook.com/${uid}/picture?width=500&height=500&access_token=6628568379%7Cc1e620fa708a1e5696fb991c1bde5662`;
-
-      try {
-        pfpImg.src = avatarUrl;
-        downloadBtn.href = avatarUrl;
-        resultDiv.style.display = 'flex';
-      } catch (err) {
-        errorText.innerText = "⚠️ Could not retrieve the profile picture. Try again!";
-        errorText.style.display = 'block';
-      }
-    }
-
-    async function loadNextShayari() {
-      const statusText = document.getElementById('shayari-status');
-      const wrapper = document.getElementById('shayari-wrapper');
-      const player = document.getElementById('shayari-player');
-
-      if (statusText) {
-        statusText.style.display = 'block';
-        statusText.innerText = "একটু অপেক্ষা করো বেবি😜...";
-      }
-      if (wrapper) wrapper.style.display = 'none';
-
-      try {
-        const baseRes = await fetch('https://raw.githubusercontent.com/Sh4nDev/ShAn.s-Api/refs/heads/main/Api.json');
-        const baseData = await baseRes.json();
-        const shanBase = baseData.shan;
-
-        const targetUrl = `${shanBase}/ShAn-album-videos?category=shayari&senderID=10001&author=ShAn`;
-
-        const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
-        const proxyData = await response.json();
-        const data = JSON.parse(proxyData.contents);
-
-        if (data && data.ShAn) {
-          player.src = data.ShAn;
-          if (statusText) statusText.style.display = 'none';
-          if (wrapper) wrapper.style.display = 'block';
-        } else {
-          if (statusText) statusText.innerText = "❌ ভুল এপিআই রেস্পন্স..";
-        }
-      } catch (err) {
-        console.error(err);
-        if (statusText) statusText.innerText = "⚠ ভিডিও লোড করা যায়নি। আবার চেষ্টা করুন!";
       }
     }
 
@@ -428,7 +304,7 @@
       const randomMessages = [
         "babu khuda lagse🥺", "Hop beda😾,Boss বল boss😼", "আমাকে ডাকলে ,আমি কিন্তূ কিস করে দেবো😘 ",
         "𝗜 𝗹𝗼𝐯𝗲 𝘆𝗼𝐮__😘😘", "𝗜 𝗵𝗮𝘁𝗲 𝘆𝗼𝐮__😏😏", "গোসল করে আসো যাও😑😩", "কেমন আছো_🥹",
-        "বলেন sir__😌", "বলেন ম্যাডাম__😌", "𝗕𝗲𝘀𝗵𝗶 𝗱𝗮𝗸𝗹𝗲 𝗮𝗺ｍｕ 𝗯𝗼𝗸𝗮 𝗱ｉ𝐛𝗲 𝘁𝗼__🥺",
+        "বলেন sir__😌", "বলেন ম্যাডাম__😌", "𝗕𝗲𝘀𝗵𝗶 𝗱𝗮𝗸𝗹𝗲 𝗮𝗺𝗺ｕ 𝗯𝗼𝗸𝗮 𝗱𝗶𝐛𝗲 𝘁𝗼__🥺",
         "তোর কথা তোর বাড়ি কেউ শুনে না ,তো আমি কোনো শুনবো ?🤔😂", "আমি তো অন্ধ কিছু দেখি না🐸 😎",
         "আজব তো__😒", "আমাকে না ডেকে একটু পড়তেও বসতে তো পারো 😒😒", "তোর বিয়ে হয় নি 𝗕𝗯𝘆 হইলো কিভাবে,,🙄",
         "বলো ফুলটুশি_😘", "amr JaNu lagbe,Tumi ki single aso?🥹", "Meow🐤", "astagfirullah Ami Valo mey",
@@ -501,4 +377,51 @@
         }
       }
 
-      function appendMsg(text, sender,
+      function appendMsg(text, sender, isTyping = false) {
+        const id = 'msg-' + Date.now();
+        const bubble = document.createElement('div');
+        bubble.id = id;
+        bubble.style.maxWidth = "80%";
+        bubble.style.padding = "8px 12px";
+        bubble.style.borderRadius = sender === 'user' ? "12px 12px 0px 12px" : "12px 12px 12px 0px";
+        bubble.style.fontSize = "0.85rem";
+        bubble.style.lineHeight = "1.3";
+
+        if (sender === 'user') {
+          bubble.style.alignSelf = "flex-end";
+          bubble.style.background = "#ff69b4";
+          bubble.style.color = "white";
+        } else {
+          bubble.style.alignSelf = "flex-start";
+          bubble.style.background = "rgba(255,255,255,0.08)";
+          bubble.style.color = isTyping ? "#888" : "#fff";
+        }
+
+        bubble.innerText = text;
+        messagesArea.appendChild(bubble);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+        return id;
+      }
+
+      function removeTyping(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+      }
+
+      sendBtn.addEventListener('click', handleSend);
+      chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleSend();
+      });
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
