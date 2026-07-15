@@ -15,16 +15,32 @@
       background: #0f0f1a;
       color: #fff;
       display: flex;
-      height: 100vh;
-      overflow: hidden;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+    @media (min-width: 768px) {
+      body {
+        flex-direction: row;
+        height: 100vh;
+        overflow: hidden;
+      }
     }
     .sidebar {
-      width: 250px;
+      width: 100%;
       background: #151528;
-      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       flex-direction: column;
       padding: 20px;
+    }
+    @media (min-width: 768px) {
+      .sidebar {
+        width: 250px;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: none;
+        height: 100%;
+      }
     }
     .sidebar h2 {
       color: #ff69b4;
@@ -35,7 +51,7 @@
       text-align: center;
       font-size: 0.75em;
       color: #ccc;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
     .nav-btn {
       width: 100%;
@@ -54,24 +70,33 @@
       border-color: #ff69b4;
     }
     .admin-link {
-      margin-top: auto;
+      margin-top: 10px;
       background: #4a154b;
       border-color: #ff69b4;
       text-align: center;
     }
+    @media (min-width: 768px) {
+      .admin-link {
+        margin-top: auto;
+      }
+    }
     .main-content {
       flex: 1;
-      padding: 40px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
-      position: relative;
+    }
+    @media (min-width: 768px) {
+      .main-content {
+        padding: 40px;
+        overflow-y: auto;
+      }
     }
     .header-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
     .logout-btn {
       padding: 8px 16px;
@@ -85,7 +110,7 @@
     .video-container {
       width: 100%;
       max-width: 600px;
-      margin: 0 auto 30px auto;
+      margin: 0 auto 20px auto;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 4px 20px rgba(0,0,0,0.5);
@@ -152,30 +177,83 @@
 
     <div class="script-viewer" id="viewer">
       <h3 id="script-title">Script Name</h3>
-      <pre><code id="script-code"></code></pre>
+      <div id="script-code"></div>
     </div>
   </div>
 
   <script>
     // Browser auto-play block bypass
     document.body.addEventListener('click', () => {
-      const video = document.getElementById('autoplay-video');
-      if (video) {
-        video.muted = false;
+      const mainVideo = document.getElementById('autoplay-video');
+      if (mainVideo) {
+        mainVideo.muted = false;
       }
     }, { once: true });
 
     const scriptsData = <%- JSON.stringify(scripts) %>;
 
-    function showScript(id, name) {
+    async function showScript(id, name) {
       const script = scriptsData.find(s => s._id === id);
-      if (script) {
-        document.getElementById('viewer').style.display = 'block';
-        document.getElementById('script-title').innerText = name;
-        document.getElementById('script-code').innerText = script.code;
+      if (!script) return;
+
+      const viewer = document.getElementById('viewer');
+      const title = document.getElementById('script-title');
+      const codeArea = document.getElementById('script-code');
+
+      viewer.style.display = 'block';
+      title.innerText = name;
+
+      // Check if script name contains 'anime' or 'vid'
+      const isAnime = name.toLowerCase().includes('anime') || name.toLowerCase().includes('vid');
+
+      if (isAnime) {
+        codeArea.innerHTML = `
+          <div style="text-align: center; padding: 10px;">
+            <p id="anime-status" style="color: #ff69b4; margin-bottom: 10px; font-weight: bold;">🎬 Fetching random anime edit for you...</p>
+            <div id="video-wrapper" style="display: none; max-width: 350px; margin: 0 auto; border-radius: 10px; overflow: hidden; box-shadow: 0 0 15px rgba(255, 105, 180, 0.5);">
+              <video id="anime-player" controls autoplay style="width: 100%; display: block;"></video>
+            </div>
+            <button onclick="loadNextAnime()" style="margin-top: 15px; padding: 10px 20px; background: #ff1493; border: none; border-radius: 8px; color: #fff; cursor: pointer; font-weight: bold;">Next Video ⏭️</button>
+          </div>
+        `;
+        loadNextAnime();
+      } else {
+        codeArea.innerHTML = `<pre><code>${escapeHtml(script.code)}</code></pre>`;
       }
+    }
+
+    async function loadNextAnime() {
+      const statusText = document.getElementById('anime-status');
+      const wrapper = document.getElementById('video-wrapper');
+      const player = document.getElementById('anime-player');
+
+      if (statusText) statusText.style.display = 'block';
+      if (wrapper) wrapper.style.display = 'none';
+
+      try {
+        const response = await fetch('/run-anime-api');
+        const data = await response.json();
+
+        if (data.videoUrl) {
+          player.src = data.videoUrl;
+          if (statusText) statusText.style.display = 'none';
+          if (wrapper) wrapper.style.display = 'block';
+        } else {
+          if (statusText) statusText.innerText = "⚠️ Failed to fetch video. Try again!";
+        }
+      } catch (err) {
+        if (statusText) statusText.innerText = "⚠️ Error fetching video connection.";
+      }
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
   </script>
 </body>
 </html>
-
