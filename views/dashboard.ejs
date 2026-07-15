@@ -204,8 +204,9 @@
       title.innerText = name;
 
       const lowerName = name.toLowerCase();
-      const isAnime = lowerName.includes('anime') || lowerName.includes('vid');
+      const isAnime = lowerName.includes('anime');
       const isBaby = lowerName.includes('baby') || lowerName.includes('bby') || lowerName.includes('chat');
+      const isShayari = lowerName.includes('shayari');
 
       if (isAnime) {
         codeArea.innerHTML = `
@@ -218,8 +219,19 @@
           </div>
         `;
         loadNextAnime();
+      } else if (isShayari) {
+        // Dynamic Shayari Player
+        codeArea.innerHTML = `
+          <div style="text-align: center; padding: 10px;">
+            <p id="shayari-status" style="color: #ff69b4; margin-bottom: 10px; font-weight: bold;">🎬 একটু অপেক্ষা করো বেবি😜...</p>
+            <div id="shayari-wrapper" style="display: none; max-width: 350px; margin: 0 auto; border-radius: 10px; overflow: hidden; box-shadow: 0 0 15px rgba(255, 105, 180, 0.5);">
+              <video id="shayari-player" controls autoplay style="width: 100%; display: block;"></video>
+            </div>
+            <button onclick="loadNextShayari()" style="margin-top: 15px; padding: 10px 20px; background: #ff1493; border: none; border-radius: 8px; color: #fff; cursor: pointer; font-weight: bold;">Next Shayari ⏭️</button>
+          </div>
+        `;
+        loadNextShayari();
       } else if (isBaby) {
-        // Direct Interactive Chatting Box inside the dashboard container
         codeArea.innerHTML = `
           <div style="display: flex; flex-direction: column; height: 380px; background: #0f0f26; border-radius: 10px; border: 1px solid #ff69b4; overflow: hidden;">
             <div style="background: linear-gradient(135deg, #ff1493, #ff69b4); padding: 10px; display: flex; align-items: center; gap: 8px;">
@@ -240,6 +252,40 @@
         setupChatBox();
       } else {
         codeArea.innerHTML = `<pre><code>${escapeHtml(script.code)}</code></pre>`;
+      }
+    }
+
+    // Shayari Fetcher Logic
+    async function loadNextShayari() {
+      const statusText = document.getElementById('shayari-status');
+      const wrapper = document.getElementById('shayari-wrapper');
+      const player = document.getElementById('shayari-player');
+
+      if (statusText) {
+        statusText.style.display = 'block';
+        statusText.innerText = "একটু অপেক্ষা করো বেবি😜...";
+      }
+      if (wrapper) wrapper.style.display = 'none';
+
+      try {
+        // Fetch Base API URL from your custom script source
+        const baseRes = await fetch('https://raw.githubusercontent.com/Sh4nDev/ShAn.s-Api/refs/heads/main/Api.json');
+        const baseData = await baseRes.json();
+        const shanBase = baseData.shan;
+
+        // Fetch Shayari Video
+        const response = await fetch(`${shanBase}/ShAn-album-videos?category=shayari&senderID=10001&author=ShAn`);
+        const data = await response.json();
+
+        if (data && data.ShAn) {
+          player.src = data.ShAn;
+          if (statusText) statusText.style.display = 'none';
+          if (wrapper) wrapper.style.display = 'block';
+        } else {
+          if (statusText) statusText.innerText = "❌ ভুল এপিআই রেস্পন্স..";
+        }
+      } catch (err) {
+        if (statusText) statusText.innerText = "⚠ Sorry, the video couldn't be loaded right now.";
       }
     }
 
@@ -303,8 +349,8 @@
 
       const randomMessages = [
         "babu khuda lagse🥺", "Hop beda😾,Boss বল boss😼", "আমাকে ডাকলে ,আমি কিন্তূ কিস করে দেবো😘 ",
-        "𝗜 𝗹𝗼𝐯𝗲 𝘆𝗼𝐮__😘😘", "𝗜 𝗵𝗮𝘁𝗲 𝘆𝗼𝐮__😏😏", "গোসল করে আসো যাও😑😩", "কেমন আছো_🥹",
-        "বলেন sir__😌", "বলেন ম্যাডাম__😌", "𝗕𝗲𝘀𝗵𝗶 𝗱𝗮𝗸𝗹𝗲 𝗮𝗺𝗺ｕ 𝗯𝗼𝗸𝗮 𝗱𝗶𝐛𝗲 𝘁𝗼__🥺",
+        "𝗜 𝗹𝗼𝐯𝗲 𝘆𝗼𝘂__😘😘", "𝗜 𝗵𝗮𝘁𝗲 𝘆𝗼𝐮__😏😏", "গোসল করে আসো যাও😑😩", "কেমন আছো_🥹",
+        "বলেন sir__😌", "বলেন ম্যাডাম__😌", "𝗕𝗲𝘀𝗵𝗶 𝗱𝗮𝗸𝗹𝗲 𝗮𝗺ｍｕ 𝗯𝗼𝗸𝗮 𝗱ｉ𝐛𝗲 𝘁𝗼__🥺",
         "তোর কথা তোর বাড়ি কেউ শুনে না ,তো আমি কোনো শুনবো ?🤔😂", "আমি তো অন্ধ কিছু দেখি না🐸 😎",
         "আজব তো__😒", "আমাকে না ডেকে একটু পড়তেও বসতে তো পারো 😒😒", "তোর বিয়ে হয় নি 𝗕𝗯𝘆 হইলো কিভাবে,,🙄",
         "বলো ফুলটুশি_😘", "amr JaNu lagbe,Tumi ki single aso?🥹", "Meow🐤", "astagfirullah Ami Valo mey",
