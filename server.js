@@ -148,7 +148,50 @@ app.post('/admin/script/delete/:id', checkAuth, checkAdmin, async (req, res) => 
   res.redirect('/admin');
 });
 
+// Route to execute uploaded anime script backend logic dynamically
+app.get('/run-anime-api', async (req, res) => {
+  const axios = require('axios');
+  
+  const tags = [
+    "anime hindi song edit", "anime hindi lo-fi edit", "hindi sad anime edit",
+    "anime aesthetic hindi song", "naruto hindi song edit", "anime attitude edit",
+    "anime amv edit 4k", "hinata hyuga edit 4k", "anime attitude edit 4k",
+    "anime sigma male edit", "badass anime moments edit", "anime cold moments edit",
+    "anime villain attitude edit", "anime phonk edit badass", "anime savage moments",
+    "anime walk attitude edit", "anime death stare edit", "anime dark aesthetic edit",
+    "madara uchiha attitude edit", "gojo satoru badass edit", "eren yeager freedom edit",
+    "itachi uchiha cold edit", "sukuna ryoamen attitude", "levi ackerman badass edit",
+    "daiki aomine attitude", "ken kaneki centipede edit", "light yagami god complex edit",
+    "mikey tokyo revengers edit", "johan liebert cold edit", "rimuru tempest badass mode",
+    "Goku aura", "smoker", "anime typography attitude edit", "anime amv transformation edit",
+    "anime egoist edit blue lock", "anime ruthless moments edit", "anime 4k 60fps attitude"
+  ];
+
+  try {
+    const mul = (num, multiplier) => num / (1 / multiplier);
+    const randomIndex = Math.floor(mul(Math.random(), tags.length));
+    const randomTag = tags[randomIndex];
+
+    const tikUrl = "https://www.tikwm.com/api/feed/search?keywords=" + encodeURIComponent(randomTag);
+    const apiRes = await axios.get(tikUrl);
+    const videos = apiRes.data?.data?.videos;
+
+    if (!videos || videos.length === 0) {
+      return res.json({ error: "No videos found" });
+    }
+
+    const randomVidIndex = Math.floor(mul(Math.random(), videos.length));
+    const selectedVideo = videos[randomVidIndex];
+    const finalUrl = selectedVideo.play || selectedVideo.hdplay;
+
+    res.json({ videoUrl: finalUrl });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "API error" });
+  }
+});
+
 app.listen(PORT, () => {
   console.log('Server is running on port: ' + PORT);
 });
-
+  
